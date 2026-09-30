@@ -3,11 +3,14 @@
 //
 //   PulseLockTests                 run everything
 //   PulseLockTests --only alloc    run just the allocation check (used for the Debug-CRT build)
+//   PulseLockTests --snapshot DIR  render the editor to PNGs in DIR instead of testing
 
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_dsp/juce_dsp.h>
 
 #include "PluginProcessor.h"
+#include "ui/MainPanel.h"
+#include "ui/PulseLookAndFeel.h"
 
 #include <algorithm>
 #include <array>
@@ -903,6 +906,76 @@ namespace
     }
 }
 
+namespace
+{
+    using namespace pulselock;
+
+    /** Renders the real interface (2x) to a PNG after playing some of the song, exactly as the
+        editor draws it, including the playhead fed through the audio thread's FIFO. */
+    bool renderSnapshot (const juce::File& file, const std::function<void (Harness&)>& setUp,
+                         const std::vector<MidiEvent>& events, juce::int64 playSamples)
+    {
+        Harness h (48000.0, 1600);   // one display frame per block
+        setUp (h);
+
+        ui::PulseLookAndFeel lookAndFeel;
+        ui::MainPanel panel (h.proc);
+        panel.setLookAndFeel (&lookAndFeel);
+        panel.setSize (ui::Theme::baseWidth, ui::Theme::baseHeight);
+
+        juce::Random noise (3);
+        for (juce::int64 pos = 0; pos < playSamples; pos += 1600)
+        {
+            std::vector<MidiEvent> blockEvents;
+            for (const auto& e : events)
+                if (e.time >= pos && e.time < pos + 1600)
+                    blockEvents.push_back ({ e.time - pos, { e.bytes[0], e.bytes[1], e.bytes[2] } });
+
+            h.run (1600, blockEvents, [&noise] (juce::int64, int) { return noise.nextFloat() - 0.5f; }, nullptr);
+
+            ScopeFrame frame;
+            const bool fresh = h.proc.getScopeFifo().pullLatest (frame);
+            panel.tick (fresh ? &frame : nullptr);
+        }
+
+        const auto image = panel.createComponentSnapshot (panel.getLocalBounds(), true, 2.0f);
+        file.deleteFile();
+        bool ok = false;
+        {
+            juce::FileOutputStream out (file);
+            juce::PNGImageFormat png;
+            ok = out.openedOk() && image.isValid() && png.writeImageToStream (image, out);
+        }
+        panel.setLookAndFeel (nullptr);
+
+        std::printf ("%s %s (%d x %d)\n", ok ? "wrote" : "FAILED to write", file.getFullPathName().toRawUTF8(),
+                     image.getWidth(), image.getHeight());
+        return ok;
+    }
+
+    int renderSnapshots (const juce::String& directory)
+    {
+        const auto dir = juce::File::getCurrentWorkingDirectory().getChildFile (directory);
+        dir.createDirectory();
+
+        // The default: pattern A's 16th gate on Volume, playing along with the song.
+        bool ok = renderSnapshot (dir.getChildFile ("pulselock-gate.png"), [] (Harness&) {}, {}, 60000);
+
+        // Pattern E (riser) on the Filter lane with filter and pan on, while key C#1 asks for
+        // pattern B at the next bar, so B shows as waiting.
+        ok = renderSnapshot (dir.getChildFile ("pulselock-filter.png"), [] (Harness& h)
+        {
+            h.set (ParamID::pattern, 4.0f);
+            h.set (ParamID::filterOn, 1.0f);
+            h.set (ParamID::panOn, 1.0f);
+            h.set (ParamID::switchMode, (float) (int) SwitchMode::nextBar);
+            h.proc.apvts.state.setProperty ("editLane", (int) Lane::filter, nullptr);
+        }, { noteOnAt (60000, 37) }, 72000) && ok;
+
+        return ok ? 0 : 1;
+    }
+}
+
 int main (int argc, char** argv)
 {
     PULSELOCK_INSTALL_ALLOC_HOOK();
@@ -917,6 +990,8 @@ int main (int argc, char** argv)
             only = argv[++i];
         else if (arg == "--alloc-minutes" && i + 1 < argc)
             allocMinutes = juce::String (argv[++i]).getDoubleValue();
+        else if (arg == "--snapshot" && i + 1 < argc)
+            return renderSnapshots (argv[++i]);
     }
 
     auto wants = [&only] (const char* name) { return only.isEmpty() || only == name; };

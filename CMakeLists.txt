@@ -31,7 +31,12 @@ set(PULSELOCK_SOURCES
     Source/pattern/Pattern.cpp
     Source/dsp/PulseEngine.cpp
     Source/PluginProcessor.cpp
-    Source/PluginEditor.cpp)
+    Source/PluginEditor.cpp
+    Source/ui/PulseLookAndFeel.cpp
+    Source/ui/Controls.cpp
+    Source/ui/PatternBar.cpp
+    Source/ui/PatternEditor.cpp
+    Source/ui/MainPanel.cpp)
 
 set(PULSELOCK_DEFINITIONS
     JUCE_WEB_BROWSER=0
