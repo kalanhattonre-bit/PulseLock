@@ -32,6 +32,14 @@ jobs:
       - name: Run tests (Release)
         run: build/PulseLockTests_artefacts/Release/PulseLockTests.exe
 
+      # The Release run counts operator new only. The debug CRT reports every heap allocation
+      # (including malloc from JUCE's HeapBlock), so the no-allocation check runs again there.
+      - name: Build tests (Debug CRT)
+        run: cmake --build build --config Debug --target PulseLockTests --parallel
+
+      - name: Allocation check (Debug CRT)
+        run: build/PulseLockTests_artefacts/Debug/PulseLockTests.exe --only alloc
+
       # bash, not pwsh: pluginval.exe is a GUI-subsystem program, and PowerShell's call operator
       # returns without waiting for those, so it never sees the exit code.
       - name: Validate with pluginval

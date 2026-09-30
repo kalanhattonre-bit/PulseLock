@@ -26,6 +26,10 @@ FetchContent_MakeAvailable(JUCE)
 
 # Sources shared by the plugin and the test runner, so the tests exercise the shipped code.
 set(PULSELOCK_SOURCES
+    Source/Parameters.cpp
+    Source/Presets.cpp
+    Source/pattern/Pattern.cpp
+    Source/dsp/PulseEngine.cpp
     Source/PluginProcessor.cpp
     Source/PluginEditor.cpp)
 
