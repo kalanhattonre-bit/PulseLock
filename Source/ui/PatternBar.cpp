@@ -379,19 +379,28 @@ namespace pulselock::ui
         // Underline the eight pattern keys and number them 1-8: white keys low down, black keys on the
         // black key itself, so every pattern key is labelled and none is skipped.
         g.setFont (Theme::font (8.5f, true));
+        float rangeLeft = keys.getRight(), rangeRight = keys.getX();
         for (int i = 0; i < numPatterns; ++i)
         {
             const int note = keyStart + i;
             if (note < 0 || note > 127)
                 continue;
             const float cx = keyCentre[(size_t) note];
-            g.setColour (Theme::accent);
-            g.fillRect (juce::Rectangle<float> (cx - whiteWidth * 0.3f, keys.getBottom() - 2.0f, whiteWidth * 0.6f, 2.0f));
+            rangeLeft = juce::jmin (rangeLeft, cx);
+            rangeRight = juce::jmax (rangeRight, cx);
 
             const auto label = isBlack (note) ? juce::Rectangle<float> (cx - 6.0f, keys.getY() + 1.0f, 12.0f, 9.0f)
                                               : juce::Rectangle<float> (cx - 6.0f, keys.getBottom() - 11.0f, 12.0f, 9.0f);
             g.setColour (isHeld (note) ? Theme::onAccent : Theme::accent);
             g.drawText (patternName (i), label, juce::Justification::centred, false);
+        }
+
+        // One unbroken underline under the whole range, so the eight keys read as one group.
+        if (rangeLeft <= rangeRight)
+        {
+            g.setColour (Theme::accent);
+            g.fillRect (juce::Rectangle<float> (rangeLeft - whiteWidth * 0.3f, keys.getBottom() - 2.0f,
+                                                rangeRight - rangeLeft + whiteWidth * 0.6f, 2.0f));
         }
     }
 }
