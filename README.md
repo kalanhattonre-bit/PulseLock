@@ -2,7 +2,7 @@
 
 PulseLock is a VST3 effect for Cubase on Windows. Draw a shape and it plays in time with your song on
 the track's **volume**, a **filter**, and **pan**: trance gates, sidechain pumping, filter risers,
-auto-pan. There are **eight patterns (A to H)**, and a MIDI keyboard switches between them live.
+auto-pan. There are **eight patterns (1 to 8)**, and a MIDI keyboard switches between them live.
 
 ---
 
@@ -30,13 +30,13 @@ auto-pan. There are **eight patterns (A to H)**, and a MIDI keyboard switches be
 
 ## 3. Use it in Cubase
 
-1. **Insert PulseLock on an audio track** (or a group or FX channel) and press play. Pattern A, a 16th
+1. **Insert PulseLock on an audio track** (or a group or FX channel) and press play. Pattern 1, a 16th
    gate, starts chopping in time.
 2. **Optional: switch patterns from the keyboard.** Create a MIDI track, set its **output** to
-   **PulseLock**, and record-enable or monitor it. Keys **C1 to G1** pick patterns **A to H** (Cubase's
-   note names, where middle C is C3). Record those notes into a MIDI part to switch patterns as the song
+   **PulseLock**, and record-enable or monitor it. Keys **C1 to G1** pick patterns **1 to 8** (Cubase's
+   note names, where middle C is C3). The keyboard strip along the bottom numbers those keys. Record those notes into a MIDI part to switch patterns as the song
    plays.
-3. Click a letter to edit that pattern, and click **VOLUME**, **FILTER** or **PAN** to edit that lane.
+3. Click a pattern number to edit that pattern, and click **VOLUME**, **FILTER** or **PAN** to edit that lane.
 
 ## 4. Drawing
 
@@ -60,7 +60,7 @@ The tool strip under the drawing:
 
 ## 5. Controls
 
-**Pattern bar**: **A to H** pick the pattern to edit and play. The **filled** letter is playing, the
+**Pattern bar**: **1 to 8** pick the pattern to edit and play. The **filled** number is playing, the
 **outlined** one is being edited, and a **dashed** one is waiting for the next beat or bar. Each shows the
 key that switches to it. **VOLUME / FILTER / PAN**: click the name to draw that lane; click its **light** to
 switch the lane on or off.
@@ -72,11 +72,11 @@ switch the lane on or off.
 | Switch | When a pattern key takes effect: **Instant**, **Next beat**, or **Next bar**. |
 | Rate | Speed in Hz, used only when Length is Free. |
 | Keys | Which eight keys switch patterns (default C1 to G1). |
-| Volume: Depth | How far the Volume lane can pull the level down. |
+| Depth: Volume | How far the Volume lane can pull the level down. |
 | Filter: Type | Low-pass, high-pass or band-pass. |
 | Filter: Low / High | The cutoff at the bottom and at the top of the Filter lane. |
 | Filter: Res | Resonance: a peak at the cutoff. |
-| Pan: Depth | How far the Pan lane can move the sound left and right. |
+| Depth: Pan | How far the Pan lane can move the sound left and right. |
 | Smooth | Rounds off hard edges so gates don't click (a few milliseconds). |
 | Mix | Blend of the original and the processed sound. |
 | Gain | Output level. |
@@ -90,13 +90,13 @@ Presets set the knobs only; they never overwrite your drawings.
 
 | Preset | Sound |
 | --- | --- |
-| Trance Gate | Pattern A's 16th gate, one bar. |
-| Sidechain Pump | Pattern B: dips on every beat and swells back. |
-| Filter Riser | Pattern E: a low-pass sweep that opens over four bars. |
-| Auto-Pan | Pattern A's pan wave every half bar. |
-| Stutter Keys | Every key restarts pattern G's stutter. Play it like a sampler. |
-| 3-3-2 Groove | Pattern C's 3-3-2 rhythm through a moving filter, with a little pan. |
-| Random Steps | Pattern F's random steps on volume, a band-pass filter and pan. |
+| Trance Gate | Pattern 1's 16th gate, one bar. |
+| Sidechain Pump | Pattern 2: dips on every beat and swells back. |
+| Filter Riser | Pattern 5: a low-pass sweep that opens over four bars. |
+| Auto-Pan | Pattern 1's pan wave every half bar. |
+| Stutter Keys | Every key restarts pattern 7's stutter. Play it like a sampler. |
+| 3-3-2 Groove | Pattern 3's 3-3-2 rhythm through a moving filter, with a little pan. |
+| Random Steps | Pattern 6's random steps on volume, a band-pass filter and pan. |
 
 ## 7. Something wrong? Tell me
 

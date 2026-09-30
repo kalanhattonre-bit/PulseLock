@@ -7,7 +7,7 @@
 
 namespace pulselock::ui
 {
-    /** Patterns A to H. The filled one is playing; the outlined one is the one being edited
+    /** Patterns 1 to 8. The filled one is playing; the outlined one is the one being edited
         (the Pattern parameter); a dashed outline waits for the next beat or bar. Each shows the
         MIDI key that switches to it. Clicking one selects it for editing and playing. */
     class PatternButtons final : public juce::Component
@@ -88,7 +88,7 @@ namespace pulselock::ui
     };
 
     /** A thin keyboard across the whole MIDI range. Held keys light up; the eight pattern keys
-        are underlined with their pattern letters. Display only. */
+        are underlined and numbered 1-8 (a black key carries its number on the key). Display only. */
     class KeyStrip final : public juce::Component
     {
     public:

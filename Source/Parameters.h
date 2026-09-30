@@ -56,7 +56,7 @@ namespace pulselock
     /** Length of one pattern pass in quarter-note beats for a sync index, or 0 for free-running. */
     double syncBeats (int syncIndex) noexcept;
 
-    /** "A" .. "H". */
+    /** "1" .. "8" (numbers, so they never read as note names). */
     juce::String patternName (int index);
 
     /** Note name as Cubase shows it by default (middle C, MIDI 60, is C3). */

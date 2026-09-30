@@ -81,7 +81,7 @@ namespace pulselock
 
     juce::String patternName (int index)
     {
-        return juce::String::charToString ((juce::juce_wchar) ('A' + juce::jlimit (0, numPatterns - 1, index)));
+        return juce::String (juce::jlimit (0, numPatterns - 1, index) + 1);
     }
 
     juce::String formatNoteName (int midiNote)

@@ -327,7 +327,7 @@ namespace
             h.set (ParamID::switchMode, (float) (int) mode);
 
             std::vector<float> out;
-            h.run (40000, { noteOnAt (20000, 37) }, dc, &out);   // keys start at C1 (36): 37 = pattern B
+            h.run (40000, { noteOnAt (20000, 37) }, dc, &out);   // keys start at C1 (36): 37 = pattern 2
             const auto edge = firstBelow (out, 100, 0.25f);
             check (std::abs (edge - expected) <= 48, fmt ("%s: key at 20000, switches at %lld (expected %lld)",
                                                          label, (long long) edge, (long long) expected));
@@ -344,7 +344,7 @@ namespace
         h.run (4096, {}, dc, &out);
         h.set (ParamID::pattern, 2.0f);
         h.run (4096, {}, dc, &out);
-        check (std::abs (out.back() - 0.125f) < 1.0e-3f, fmt ("choosing pattern C from the parameter: level %.4f (expected 0.125)", out.back()));
+        check (std::abs (out.back() - 0.125f) < 1.0e-3f, fmt ("choosing pattern 3 from the parameter: level %.4f (expected 0.125)", out.back()));
     }
 
     /** First index at or after `from` where |x| rises above `level`, or -1. */
@@ -356,7 +356,7 @@ namespace
         return -1;
     }
 
-    /** A open (1), B half (0.5), C shut (0), fast smoothing. */
+    /** Pattern 1 open, 2 at half (0.5), 3 shut, fast smoothing. */
     void openHalfShut (Harness& h)
     {
         h.proc.setLanePoints (0, Lane::volume, flat (1.0f), {});
@@ -377,7 +377,7 @@ namespace
             openHalfShut (h);
             h.set (ParamID::switchMode, (float) (int) SwitchMode::nextBar);
             std::vector<float> out;
-            h.run (expected + 30000, { noteOnAt (noteAt, 38) }, dc, &out);   // 38 = C, shut
+            h.run (expected + 30000, { noteOnAt (noteAt, 38) }, dc, &out);   // 38 = pattern 3, shut
             const auto edge = firstBelow (out, 100, 0.25f);
             check (std::abs (edge - expected) <= 48, fmt ("%s: switches at %lld (expected %lld)", label, (long long) edge, (long long) expected));
         };
@@ -457,14 +457,14 @@ namespace
             h.run (4096, {}, dc, &out);
             const float backOnB = out.back();
             check (std::abs (onB - 0.25f) < 1.0e-3f && std::abs (onC) < 1.0e-3f && std::abs (backOnB - 0.25f) < 1.0e-3f,
-                   fmt ("B chosen (%.3f), key to C (%.3f), click B again: B plays (%.3f)", onB, onC, backOnB));
+                   fmt ("pattern 2 chosen (%.3f), key to 3 (%.3f), click 2 again: 2 plays (%.3f)", onB, onC, backOnB));
         }
 
         // The host's bypass switch crossfades both ways.
         {
             Harness h (48000.0, 512);
             openHalfShut (h);
-            h.set (ParamID::pattern, 2.0f);   // shut
+            h.set (ParamID::pattern, 2.0f);   // pattern 3: shut
             std::vector<float> out;
             h.run (4096, {}, dc, &out);
             const float active = out.back();
@@ -490,7 +490,7 @@ namespace
     {
         section ("4. Gate edges are smoothed (no clicks)");
 
-        Harness h (48000.0, 256);   // factory pattern A: 16th gate; default Smooth 1.5 ms
+        Harness h (48000.0, 256);   // factory pattern 1: 16th gate; default Smooth 1.5 ms
         std::vector<float> out;
         h.run (96000, {}, dc, &out);
 
@@ -631,7 +631,7 @@ namespace
             p->setValueNotifyingHost (p->convertTo0to1 (p->convertFrom0to1 (rng.nextFloat())));
         }
 
-        // A random curve with a vertical edge and bends in every lane of pattern F.
+        // A random curve with a vertical edge and bends in every lane of pattern 6.
         for (int l = 0; l < numLanes; ++l)
         {
             Points pts { { 0.0f, rng.nextFloat(), rng.nextFloat() * 2.0f - 1.0f } };
@@ -1016,11 +1016,11 @@ namespace
         const auto dir = juce::File::getCurrentWorkingDirectory().getChildFile (directory);
         dir.createDirectory();
 
-        // The default: pattern A's 16th gate on Volume, playing along with the song.
+        // The default: pattern 1's 16th gate on Volume, playing along with the song.
         bool ok = renderSnapshot (dir.getChildFile ("pulselock-gate.png"), [] (Harness&) {}, {}, 60000);
 
-        // Pattern E (riser) on the Filter lane with filter and pan on, while key C#1 asks for
-        // pattern B at the next bar, so B shows as waiting.
+        // Pattern 5 (riser) on the Filter lane with filter and pan on, while key C#1 asks for
+        // pattern 2 at the next bar, so 2 shows as waiting.
         ok = renderSnapshot (dir.getChildFile ("pulselock-filter.png"), [] (Harness& h)
         {
             h.set (ParamID::pattern, 4.0f);

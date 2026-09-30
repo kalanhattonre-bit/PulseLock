@@ -183,19 +183,19 @@ namespace pulselock
                                                         0.4f, 0.95f, 0.2f, 0.6f, 0.75f, 0.1f, 0.55f, 0.85f };
                 switch (i)
                 {
-                    case 0:   // A: 16th gate
+                    case 0:   // 1: 16th gate
                         return { steps (all16, 0.55f), wave (1, 0.25f, 0.85f), wave (1, 0.2f, 0.8f) };
-                    case 1:   // B: pump on every beat
+                    case 1:   // 2: pump on every beat
                         return { pump (4, 0.08f, 0.7f), ramp (1.0f, 0.35f), flat (0.5f) };
-                    case 2:   // C: 3-3-2 gate
+                    case 2:   // 3: 3-3-2 gate
                         return { steps (threeThreeTwo, 0.9f), steps (threeThreeTwo, 1.0f, 0.3f), steps ({ 0.15f, 0.85f, 0.15f, 0.85f, 0.15f, 0.85f, 0.15f, 0.85f }, 1.0f) };
-                    case 3:   // D: 8th chop
+                    case 3:   // 4: 8th chop
                         return { steps (std::vector<float> (8, 1.0f), 0.7f), wave (2, 0.3f, 0.9f), flat (0.5f) };
-                    case 4:   // E: riser
+                    case 4:   // 5: riser
                         return { ramp (0.1f, 1.0f, 0.4f), ramp (0.0f, 1.0f, 0.3f), flat (0.5f) };
-                    case 5:   // F: random steps
+                    case 5:   // 6: random steps
                         return { steps (randomLevels, 1.0f), steps (randomLevels, 1.0f), steps ({ 0.2f, 0.8f, 0.5f, 0.1f, 0.9f, 0.35f, 0.65f, 0.5f }, 1.0f) };
-                    case 6:   // G: straight first half, 32nd stutter in the second
+                    case 6:   // 7: straight first half, 32nd stutter in the second
                     {
                         Points vol { { 0.0f, 1.0f, 0.0f }, { 0.5f, 1.0f, 0.0f } };
                         for (int s = 0; s < 16; ++s)
@@ -208,7 +208,7 @@ namespace pulselock
                         }
                         return { vol, ramp (1.0f, 0.4f), flat (0.5f) };
                     }
-                    default:  // H: open (no movement)
+                    default:  // 8: open (no movement)
                         return { flat (1.0f), flat (1.0f), flat (0.5f) };
                 }
             }

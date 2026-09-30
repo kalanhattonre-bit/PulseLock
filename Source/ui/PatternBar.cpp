@@ -376,7 +376,8 @@ namespace pulselock::ui
             g.fillRect (key);
         }
 
-        // Underline the pattern keys and letter them A..H.
+        // Underline the eight pattern keys and number them 1-8: white keys low down, black keys on the
+        // black key itself, so every pattern key is labelled and none is skipped.
         g.setFont (Theme::font (8.5f, true));
         for (int i = 0; i < numPatterns; ++i)
         {
@@ -386,12 +387,11 @@ namespace pulselock::ui
             const float cx = keyCentre[(size_t) note];
             g.setColour (Theme::accent);
             g.fillRect (juce::Rectangle<float> (cx - whiteWidth * 0.3f, keys.getBottom() - 2.0f, whiteWidth * 0.6f, 2.0f));
-            if (! isBlack (note))
-            {
-                g.setColour (isHeld (note) ? Theme::onAccent : Theme::accent);
-                g.drawText (patternName (i), juce::Rectangle<float> (cx - 6.0f, keys.getBottom() - 11.0f, 12.0f, 9.0f),
-                            juce::Justification::centred, false);
-            }
+
+            const auto label = isBlack (note) ? juce::Rectangle<float> (cx - 6.0f, keys.getY() + 1.0f, 12.0f, 9.0f)
+                                              : juce::Rectangle<float> (cx - 6.0f, keys.getBottom() - 11.0f, 12.0f, 9.0f);
+            g.setColour (isHeld (note) ? Theme::onAccent : Theme::accent);
+            g.drawText (patternName (i), label, juce::Justification::centred, false);
         }
     }
 }

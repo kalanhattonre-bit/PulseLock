@@ -9,22 +9,19 @@ namespace pulselock::ui
 
         void paintLogo (juce::Graphics& g, juce::Rectangle<float> area)
         {
-            // A rounded frame holding one pulse: a drawn gate, locked to the grid.
+            // The mark GrainLock wears, in PulseLock's colour: a loop (ring) with one point riding it.
             const float d = juce::jmin (area.getWidth(), area.getHeight());
-            const auto frame = juce::Rectangle<float> (d, d).withCentre (area.getCentre()).reduced (1.5f);
+            const auto ring = juce::Rectangle<float> (d, d).withCentre (area.getCentre()).reduced (2.0f);
             g.setColour (Theme::accent);
-            g.drawRoundedRectangle (frame, d * 0.22f, 2.0f);
+            g.drawEllipse (ring, 2.2f);
 
-            const auto inner = frame.reduced (d * 0.2f);
-            juce::Path pulse;
-            pulse.startNewSubPath (inner.getX(), inner.getBottom());
-            pulse.lineTo (inner.getX() + inner.getWidth() * 0.3f, inner.getBottom());
-            pulse.lineTo (inner.getX() + inner.getWidth() * 0.3f, inner.getY());
-            pulse.lineTo (inner.getX() + inner.getWidth() * 0.7f, inner.getY());
-            pulse.lineTo (inner.getX() + inner.getWidth() * 0.7f, inner.getBottom());
-            pulse.lineTo (inner.getRight(), inner.getBottom());
+            const float angle = juce::MathConstants<float>::pi * 0.28f;
+            const float r = ring.getWidth() * 0.5f;
+            const auto dot = ring.getCentre() + juce::Point<float> (std::sin (angle), -std::cos (angle)) * r;
+            g.setColour (Theme::background);
+            g.fillEllipse (juce::Rectangle<float> (d * 0.42f, d * 0.42f).withCentre (dot));
             g.setColour (Theme::text);
-            g.strokePath (pulse, juce::PathStrokeType (1.8f, juce::PathStrokeType::mitered, juce::PathStrokeType::rounded));
+            g.fillEllipse (juce::Rectangle<float> (d * 0.26f, d * 0.26f).withCentre (dot));
         }
 
         using Painter = SmallButton::IconPainter;
@@ -409,11 +406,11 @@ namespace pulselock::ui
 
         keyStrip.update (lastFrame.heldNotes, keyStart);
 
-        juce::String status = patternName (lastFrame.pattern) + " PLAYING";
+        juce::String status = "PATTERN " + patternName (lastFrame.pattern) + " PLAYING";
         if (lastFrame.pendingPattern >= 0)
         {
             const int mode = juce::roundToInt (plainValue (ParamID::switchMode));
-            status << "   " << juce::String::fromUTF8 ("\xe2\x86\x92") << "   " << patternName (lastFrame.pendingPattern)
+            status << "  " << juce::String::fromUTF8 ("\xe2\x86\x92") << "  " << patternName (lastFrame.pendingPattern)
                    << (mode == (int) SwitchMode::nextBar ? " AT NEXT BAR" : " ON NEXT BEAT");
         }
         if (status != statusText)
