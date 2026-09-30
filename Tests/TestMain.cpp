@@ -9,6 +9,7 @@
 #include <juce_dsp/juce_dsp.h>
 
 #include "PluginProcessor.h"
+#include "Presets.h"
 #include "ui/MainPanel.h"
 #include "ui/PulseLookAndFeel.h"
 
@@ -823,6 +824,63 @@ namespace
         check (alloccount::count.load() == 0, fmt ("allocations inside processBlock: %lld", alloccount::count.load()));
     }
 
+    void testFactoryPresets()
+    {
+        section ("Presets: each one sets exactly its values (defaults elsewhere), keeps the drawn patterns, and plays");
+
+        const auto& presets = factoryPresets();
+        check (presets.size() >= 8 && juce::String (presets[0].name) == "Init",
+               fmt ("%d factory presets, starting with Init", (int) presets.size()));
+
+        for (int index = 0; index < (int) presets.size(); ++index)
+        {
+            const auto& preset = presets[(size_t) index];
+            Harness h (48000.0, 512);
+
+            juce::Random scramble (100 + index);
+            for (const char* id : ParamID::all)
+            {
+                auto* p = h.proc.apvts.getParameter (id);
+                p->setValueNotifyingHost (p->convertTo0to1 (p->convertFrom0to1 (scramble.nextFloat())));
+            }
+            h.proc.setLanePoints (7, Lane::volume, flat (0.3f), {});   // a user's drawing
+
+            h.proc.loadPreset (index);
+
+            int wrong = 0;
+            for (const char* id : ParamID::all)
+            {
+                auto* p = h.proc.apvts.getParameter (id);
+                float want = p->convertFrom0to1 (p->getDefaultValue());
+                for (const auto& v : preset.values)
+                    if (juce::String (v.id) == id)
+                        want = p->convertFrom0to1 (p->convertTo0to1 (v.value));
+                const float got = h.proc.apvts.getRawParameterValue (id)->load();
+                if (std::abs (got - want) > 1.0e-3f * std::max (1.0f, std::abs (want)))
+                {
+                    ++wrong;
+                    std::printf ("    %s: %s is %.4f, expected %.4f\n", preset.name, id, got, want);
+                }
+            }
+            const bool drawingKept = std::abs (h.proc.getLanePoints (7, Lane::volume).front().y - 0.3f) < 1.0e-6f;
+            check (wrong == 0 && drawingKept && h.proc.getCurrentPresetName() == preset.name,
+                   fmt ("%s: all %d parameters as specified, drawings untouched", preset.name, (int) std::size (ParamID::all)));
+
+            juce::Random noise (40 + index);
+            std::vector<float> out;
+            h.run (96000, { noteOnAt (24000, 37), noteOnAt (48000, 60) },
+                   [&noise] (juce::int64, int) { return noise.nextFloat() - 0.5f; }, &out);
+            float peak = 0.0f;
+            bool finite = true;
+            for (float v : out)
+            {
+                finite = finite && std::isfinite (v);
+                peak = std::max (peak, std::abs (v));
+            }
+            check (finite && peak > 0.01f, fmt ("%s: plays (peak %.3f)", preset.name, peak));
+        }
+    }
+
     void testExtras()
     {
         section ("Extra: sample rates, block sizes, bypass, host garbage, layouts, latency");
@@ -1006,6 +1064,7 @@ int main (int argc, char** argv)
     if (wants ("dry"))      testTransparency();
     if (wants ("state"))    testState();
     if (wants ("alloc"))    testNoAllocations (allocMinutes);
+    if (wants ("presets"))  testFactoryPresets();
     if (wants ("extra"))    testExtras();
 
     std::printf ("\n%s: %d failure(s)\n", failures == 0 ? "ALL PASSED" : "FAILED", failures);
