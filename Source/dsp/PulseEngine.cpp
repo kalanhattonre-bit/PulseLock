@@ -65,8 +65,10 @@ namespace pulselock
             barAnchor = timing.barStart;
 
         // Bar lengths follow the time signature (1 bar of 3/4 is 3 beats); note lengths are fixed.
-        constexpr int firstBarSync = 9;   // "1 bar", then "2 bars", "4 bars"
-        const int bars = params.sync >= firstBarSync ? (1 << juce::jlimit (0, 2, params.sync - firstBarSync)) : 0;
+        // Only these three entries are bars; anything added to the list after them is a note length.
+        constexpr int firstBarSync = 9, numBarSyncs = 3;   // "1 bar", "2 bars", "4 bars"
+        const bool isBars = params.sync >= firstBarSync && params.sync < firstBarSync + numBarSyncs;
+        const int bars = isBars ? (1 << (params.sync - firstBarSync)) : 0;
         lengthBeats = bars > 0 ? beatsPerBar * bars : syncBeats (params.sync);
         phaseIncrement = lengthBeats > 0.0 ? beatsPerSample / lengthBeats
                                            : (double) juce::jmax (0.0f, params.rateHz) / sampleRate;

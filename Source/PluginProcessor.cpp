@@ -123,14 +123,15 @@ void PulseLockProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::M
     auto parameters = readParameters();
     parameters.uiPatternRequest = uiPatternRequest.exchange (-1);
 
-    engine.process (buffer.getArrayOfWritePointers(), buffer.getNumChannels(), getTotalNumInputChannels(),
+    // The main input bus only: a side-chain bus, if one is ever added, is not the right channel.
+    engine.process (buffer.getArrayOfWritePointers(), buffer.getNumChannels(), getMainBusNumInputChannels(),
                     buffer.getNumSamples(), midi, parameters, readHostTiming(), patternBuffer.read());
 }
 
 void PulseLockProcessor::processBlockBypassed (juce::AudioBuffer<float>& buffer, juce::MidiBuffer&)
 {
     // Bypassed audio is the input, on both sides even for a mono input.
-    if (getTotalNumInputChannels() == 1 && buffer.getNumChannels() > 1)
+    if (getMainBusNumInputChannels() == 1 && buffer.getNumChannels() > 1)
         buffer.copyFrom (1, 0, buffer, 0, 0, buffer.getNumSamples());
 
     engine.processBypassed (buffer.getNumSamples(), readHostTiming());
